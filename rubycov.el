@@ -35,13 +35,45 @@
 ;;; Commentary:
 
 (load-library "ov")
+(require 'json)
 ;; (require 'ov)
+
 
 ;;; Code:
 
 (defgroup rubycov nil
   "Ruby code coverage line overlays for emacs."
   :group 'wp)
+
+(defun draw-coverage-overlays ()
+  "Draw overlays for the current buffer."
+  (ov (point-min) (point-max) 'face 'covered-face))
+
+(defun clear-coverage-overlays ()
+  "Clear overlays for the current buffer."
+  (ov-clear))
+
+(defun get-coverage-for-current-buffer ()
+  "Return array representing the line-by-line coverage for the current buffer."
+  (dolist (file get-covered-file-list)
+    (setq filename (gethash "filename" file))
+    (if (string= filename "/Users/kieran/dev/guildhall/app/controllers/application_controller.rb")
+        (setq coverage (gethash "coverage" file))))
+  )
+
+(defun get-covered-file-list ()
+  (setq files (gethash "files" (get-coverage-data "/Users/kieran/dev/guildhall/coverage/coverage.json")))
+  (setq file-list (coerce files 'list)))
+
+(defun get-coverage-data (filepath)
+  "Return hash of coverage data from FILEPATH."
+  (let ((json-object-type 'hash-table))
+    (json-read-from-string (with-temp-buffer
+                             (insert-file-contents filepath)
+                             (buffer-string)))))
+
+
+;;; Faces
 
 (defface covered-face
   '((((class color) (background light))
@@ -66,17 +98,9 @@
 (defvar covered-face 'covered-face)
 (defvar uncovered-face 'uncovered-face)
 
-(defvar-local sb/overlays nil)
 
-(defun draw-coverage-overlays ()
-  "Draw overlays for the current buffer."
-  (ov (point-min) (point-max) 'face 'covered-face))
+;;; Autoloads
 
-(defun clear-coverage-overlays ()
-  "Clear overlays for the current buffer."
-  (ov-clear))
-
-;;; Autoload
 (define-minor-mode rubycov-mode
   "Rubycov mode"
   nil nil nil
@@ -96,5 +120,6 @@
   (rubycov-mode 0))
 
 (provide 'rubycov)
+
 
 ;;; rubycov.el ends here
