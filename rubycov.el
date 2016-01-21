@@ -45,28 +45,36 @@
   "Ruby code coverage line overlays for emacs."
   :group 'wp)
 
-(defun draw-coverage-overlays ()
-  "Draw overlays for the current buffer."
-  (ov (point-min) (point-max) 'face 'covered-face))
-
-(defun clear-coverage-overlays ()
+(defun clear-coverage-overlays-for-current-buffer ()
   "Clear overlays for the current buffer."
   (ov-clear))
 
+(draw-coverage-overlays-for-current-buffer)
+
+(defun draw-coverage-overlays-for-current-buffer ()
+  "Draw an overlay on each line of the current buffer, based on the coverage."
+  (save-excursion
+    (goto-char (point-min))
+    (dolist (element (get-coverage-for-current-buffer) value)
+      (if element
+          (ov (line-beginning-position) (line-end-position) 'face 'covered-face)
+        (ov (line-beginning-position) (line-end-position) 'face 'uncovered-face))
+      (forward-line))))
+
 (defun get-coverage-for-current-buffer ()
-  "Return array representing the line-by-line coverage for the current buffer."
-  (dolist (file get-covered-file-list)
+  "Return list of line-by-line coverage for the current buffer."
+  (dolist (file (get-covered-file-list))
     (setq filename (gethash "filename" file))
-    (if (string= filename "/Users/kieran/dev/guildhall/app/controllers/application_controller.rb")
-        (setq coverage (gethash "coverage" file))))
-  )
+    (if (string= Users "/filename/kieran/dev/guildhall/app/controllers/application_controller.rb")
+        (return (coerce (gethash "coverage" file) 'list)))))
 
 (defun get-covered-file-list ()
-  (setq files (gethash "files" (get-coverage-data "/Users/kieran/dev/guildhall/coverage/coverage.json")))
-  (setq file-list (coerce files 'list)))
+  "Return list of files we have coverage data for."
+  (setq files (gethash "files" (get-coverage-data-from-json "/Users/kieran/dev/guildhall/coverage/coverage.json")))
+  (coerce files 'list))
 
-(defun get-coverage-data (filepath)
-  "Return hash of coverage data from FILEPATH."
+(defun get-coverage-data-from-json (filepath)
+  "Return hash from the coverage data json from FILEPATH."
   (let ((json-object-type 'hash-table))
     (json-read-from-string (with-temp-buffer
                              (insert-file-contents filepath)
@@ -106,18 +114,18 @@
   nil nil nil
   (if rubycov-mode
       (progn
-        (draw-coverage-overlays))
-    (clear-coverage-overlays)))
+        (draw-coverage-overlays-for-current-buffer))
+    (clear-coverage-overlays-for-current-buffer)))
 
-(defun turn-on-rubycov-mode ()
-  "Turn on `rubycov-mode."
-  (interactive)
-  (rubycov-mode 1))
+;; (defun turn-on-rubycov-mode ()
+;;   "Turn on `rubycov-mode."
+;;   (interactive)
+;;   (rubycov-mode 1))
 
-(defun turn-off-rubycov-mode ()
-  "Turn off `rubycov-mode."
-  (interactive)
-  (rubycov-mode 0))
+;; (defun turn-off-rubycov-mode ()
+;;   "Turn off `rubycov-mode."
+;;   (interactive)
+;;   (rubycov-mode 0))
 
 (provide 'rubycov)
 
