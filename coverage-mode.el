@@ -1,25 +1,25 @@
-;;; coverage-mode.el --- Code coverage line highlighting for Emacs
+;;; coverage-mode.el --- Code coverage line highlighting
 
 ;; Copyright (C) 2016 Powershop NZ Ltd.
 
-;; Author: Kieran Trezona-le Comte
-;; URL: https://github.com/trezona-lecomte/coverage-mode
+;; Author: Kieran Trezona-le Comte <trezona.lecomte@gmail.com>
 ;; Version: 0.1
-;; Created: 2016-01-21
-;; Keywords: coverage, metric
 ;; Package-Requires: ((ov "1.0"))
+;; Created: 2016-01-21
+;; Keywords: coverage metrics simplecov ruby rspec
+;; URL: https://github.com/trezona-lecomte/coverage-mode
 
 ;; This file is NOT part of GNU Emacs.
 
 ;;; License:
 
-;; Permission is hereby granted, free of charge, to any person obtaining
-;; a copy of this software and associated documentation files (the
-;; "Software"), to deal in the Software without restriction, including
-;; without limitation the rights to use, copy, modify, merge, publish,
-;; distribute, sublicense, and/or sell copies of the Software, and to
-;; permit persons to whom the Software is furnished to do so, subject to
-;; the following conditions:
+;; Permission is hereby granted, free of charge, to any person
+;; obtaining a copy of this software and associated documentation
+;; files (the "Software"), to deal in the Software without
+;; restriction, including without limitation the rights to use, copy,
+;; modify, merge, publish, distribute, sublicense, and/or sell copies
+;; of the Software, and to permit persons to whom the Software is
+;; furnished to do so, subject to the following conditions:
 
 ;; The above copyright notice and this permission notice shall be
 ;; included in all copies or substantial portions of the Software.
@@ -27,16 +27,23 @@
 ;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 ;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 ;; MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-;; LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-;; OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-;; WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+;; BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+;; ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+;; CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+;; SOFTWARE.
 
 ;;; Commentary:
+;; This package provides a minor mode to highlight code coverage in
+;; source code files.
+;;
+;; At present it only knows how to parse coverage data in the format
+;; provided by the Simplecov gem (specifically, the RSpec results in
+;; the .resultset.json file it outputs).
 
+(require 'json)
 (load-library "ov")
 (autoload 'vc-git-root "vc-git")
-(require 'json)
 
 ;;; Code:
 
@@ -48,12 +55,14 @@
 (defcustom coverage-dir nil
   "The coverage directory for `coverage-mode'.
 
-If set, look in this directory for a .resultset.json file to
-obtain coverage results. E.g. \"~/dir/to/my/project/coverage/\".
+For example: \"~/dir/to/my/project/coverage/\".
 
-If set to nil, fall back to looking for a /coverage directory
-immediately under the Git root directory."
-  :type '(choice (const :tag "Default (Git root/coverage)" nil)
+If set, look in this directory for a .resultset.json file to
+obtain coverage results.
+
+If nil, look for a /coverage directory immediately under the Git
+root directory."
+  :type '(choice (const :tag "Default (vc-git-root/coverage)" nil)
                  (string :tag "Path to coverage diretory"))
   :group 'coverage-mode)
 
