@@ -131,9 +131,6 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
   "Face for uncovered lines of code."
   :group 'coverage-mode)
 
-(defvar coverage-covered-face 'coverage-covered-face)
-(defvar coverage-uncovered-face 'coverageuncovered-face)
-
 ;;; Mode definition
 
 ;;;###autoload
