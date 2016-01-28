@@ -48,7 +48,7 @@
 ;;; Code:
 
 (defgroup coverage-mode nil
-  "Code coverage line highlighting for Emacs."
+  "Code coverage line highlighting."
   :group 'programming)
 
 (defvar coverage-resultset-filename ".resultset.json")
