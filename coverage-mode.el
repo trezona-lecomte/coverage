@@ -42,7 +42,7 @@
 ;; the .resultset.json file it outputs).
 
 (require 'json)
-(load-library "ov")
+(require 'ov)
 (autoload 'vc-git-root "vc-git")
 
 ;;; Code:
