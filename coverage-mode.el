@@ -71,9 +71,8 @@ root directory."
   "Guess the coverage directory of the given FILEPATH.
 
 Use `coverage-dir' if set, or fall back to /coverage under Git root."
-  (if coverage-dir
-      (coverage-dir)
-    (concat (vc-git-root filepath) "coverage/")))
+  (or coverage-dir
+      (concat (vc-git-root filepath) "coverage/")))
 
 (defun coverage-clear-highlighting-for-current-buffer ()
   "Clear all coverage highlighting for the current buffer."
