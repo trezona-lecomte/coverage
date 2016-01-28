@@ -136,6 +136,7 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
 
 ;;; Mode definition
 
+;;;###autoload
 (define-minor-mode coverage-mode
   "Coverage mode"
   nil nil nil
