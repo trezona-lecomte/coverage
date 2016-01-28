@@ -139,10 +139,9 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
 ;;;###autoload
 (define-minor-mode coverage-mode
   "Coverage mode"
-  nil nil nil
+  :lighter " COV"
   (if coverage-mode
-      (progn
-        (coverage-draw-highlighting-for-current-buffer))
+      (coverage-draw-highlighting-for-current-buffer)
     (coverage-clear-highlighting-for-current-buffer)))
 
 (provide 'coverage-mode)
