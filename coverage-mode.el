@@ -42,13 +42,14 @@
 ;; the .resultset.json file it outputs).
 
 (require 'json)
-(load-library "ov")
+(require 'ov)
 (autoload 'vc-git-root "vc-git")
 
 ;;; Code:
 
 (defgroup coverage-mode nil
-  "Code coverage line highlighting for Emacs.")
+  "Code coverage line highlighting."
+  :group 'programming)
 
 (defvar coverage-resultset-filename ".resultset.json")
 
@@ -66,47 +67,46 @@ root directory."
                  (string :tag "Path to coverage diretory"))
   :group 'coverage-mode)
 
-(defun coverage/dir-for-file (filepath)
+(defun coverage-dir-for-file (filepath)
   "Guess the coverage directory of the given FILEPATH.
 
 Use `coverage-dir' if set, or fall back to /coverage under Git root."
-  (if coverage-dir
-      (coverage-dir)
-    (concat (vc-git-root filepath) "coverage/")))
+  (or coverage-dir
+      (concat (vc-git-root filepath) "coverage/")))
 
-(defun coverage/clear-highlighting-for-current-buffer ()
+(defun coverage-clear-highlighting-for-current-buffer ()
   "Clear all coverage highlighting for the current buffer."
   (ov-clear))
 
-(defun coverage/draw-highlighting-for-current-buffer ()
+(defun coverage-draw-highlighting-for-current-buffer ()
   "Highlight the lines of the current buffer, based on code coverage."
   (save-excursion
     (goto-char (point-min))
-    (dolist (element (coverage/get-results-for-current-buffer))
+    (dolist (element (coverage-get-results-for-current-buffer))
       (cond ((eq element nil)
              (ov-clear (line-beginning-position) (line-end-position)))
             ((= element 0)
-             (ov (line-beginning-position) (line-end-position) 'face 'coverage/uncovered-face))
+             (ov (line-beginning-position) (line-end-position) 'face 'coverage-uncovered-face))
             ((> element 0)
-             (ov (line-beginning-position) (line-end-position) 'face 'coverage/covered-face)))
+             (ov (line-beginning-position) (line-end-position) 'face 'coverage-covered-face)))
       (forward-line))))
 
-(defun coverage/get-results-for-current-buffer ()
+(defun coverage-get-results-for-current-buffer ()
   "Return a list of coverage for the current buffer."
-  (coverage/get-results-for-file buffer-file-name
-                                 (concat (coverage/dir-for-file buffer-file-name)
+  (coverage-get-results-for-file buffer-file-name
+                                 (concat (coverage-dir-for-file buffer-file-name)
                                          coverage-resultset-filename)))
 
-(defun coverage/get-results-for-file (target-path result-path)
+(defun coverage-get-results-for-file (target-path result-path)
   "Return coverage for the file at TARGET-PATH from resultset at RESULT-PATH."
   (coerce (cdr
            (assoc-string target-path
                          (assoc 'coverage
                                 (assoc 'RSpec
-                                       (coverage/get-results-from-json result-path)))))
+                                       (coverage-get-results-from-json result-path)))))
           'list))
 
-(defun coverage/get-results-from-json (filepath)
+(defun coverage-get-results-from-json (filepath)
   "Return alist of the json resultset at FILEPATH."
   (json-read-from-string (with-temp-buffer
                            (insert-file-contents filepath)
@@ -114,7 +114,7 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
 
 ;;; Faces
 
-(defface coverage/covered-face
+(defface coverage-covered-face
   '((((class color) (background light))
      :background "#ddffdd")
     (((class color) (background dark))
@@ -122,7 +122,7 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
   "Face for covered lines of code."
   :group 'coverage-mode)
 
-(defface coverage/uncovered-face
+(defface coverage-uncovered-face
   '((((class color) (background light))
      :background "#ffdddd")
     (((class color) (background dark))
@@ -130,18 +130,15 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
   "Face for uncovered lines of code."
   :group 'coverage-mode)
 
-(defvar coverage/covered-face 'coverage/covered-face)
-(defvar coverage/uncovered-face 'coverageuncovered-face)
-
 ;;; Mode definition
 
+;;;###autoload
 (define-minor-mode coverage-mode
   "Coverage mode"
-  nil nil nil
+  :lighter " COV"
   (if coverage-mode
-      (progn
-        (coverage/draw-highlighting-for-current-buffer))
-    (coverage/clear-highlighting-for-current-buffer)))
+      (coverage-draw-highlighting-for-current-buffer)
+    (coverage-clear-highlighting-for-current-buffer)))
 
 (provide 'coverage-mode)
 
