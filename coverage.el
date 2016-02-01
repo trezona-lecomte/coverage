@@ -1,4 +1,4 @@
-;;; coverage-mode.el --- Code coverage line highlighting
+;;; coverage.el --- Code coverage line highlighting
 
 ;; Copyright (C) 2016 Powershop NZ Ltd.
 
@@ -7,7 +7,7 @@
 ;; Package-Requires: ((ov "1.0"))
 ;; Created: 2016-01-21
 ;; Keywords: coverage metrics simplecov ruby rspec
-;; URL: https://github.com/trezona-lecomte/coverage-mode
+;; URL: https://github.com/trezona-lecomte/coverage
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -47,14 +47,14 @@
 
 ;;; Code:
 
-(defgroup coverage-mode nil
+(defgroup coverage nil
   "Code coverage line highlighting."
   :group 'programming)
 
 (defvar coverage-resultset-filename ".resultset.json")
 
 (defcustom coverage-dir nil
-  "The coverage directory for `coverage-mode'.
+  "The coverage directory for `coverage'.
 
 For example: \"~/dir/to/my/project/coverage/\".
 
@@ -65,7 +65,7 @@ If nil, look for a /coverage directory immediately under the Git
 root directory."
   :type '(choice (const :tag "Default (vc-git-root/coverage)" nil)
                  (string :tag "Path to coverage diretory"))
-  :group 'coverage-mode)
+  :group 'coverage)
 
 (defun coverage-dir-for-file (filepath)
   "Guess the coverage directory of the given FILEPATH.
@@ -120,7 +120,7 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
     (((class color) (background dark))
      :background "#335533"))
   "Face for covered lines of code."
-  :group 'coverage-mode)
+  :group 'coverage)
 
 (defface coverage-uncovered-face
   '((((class color) (background light))
@@ -128,18 +128,18 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
     (((class color) (background dark))
      :background "#553333"))
   "Face for uncovered lines of code."
-  :group 'coverage-mode)
+  :group 'coverage)
 
 ;;; Mode definition
 
 ;;;###autoload
-(define-minor-mode coverage-mode
+(define-minor-mode coverage
   "Coverage mode"
   :lighter " COV"
-  (if coverage-mode
+  (if coverage
       (coverage-draw-highlighting-for-current-buffer)
     (coverage-clear-highlighting-for-current-buffer)))
 
-(provide 'coverage-mode)
+(provide 'coverage)
 
-;;; coverage-mode.el ends here
+;;; coverage.el ends here
