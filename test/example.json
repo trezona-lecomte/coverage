@@ -1,0 +1,29 @@
+{
+  "RSpec": {
+    "coverage": {
+      "/foo/bar.rb": [
+        1,
+        0,
+        null
+      ],
+      "/baz/qux/quux.rb": [
+        1,
+        5,
+        0,
+        null,
+        1,
+        5,
+        null,
+        null,
+        1,
+        null,
+        null,
+        0,
+        0,
+        16,
+        null
+      ]
+    },
+    "timestamp": 1453405229
+  }
+}
