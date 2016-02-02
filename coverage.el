@@ -106,7 +106,7 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
                                        (coverage-get-results-from-json result-path)))))
           'list))
 
-(defun coverage-get-results-from-json (filepath)
+(defun coverage-get-json-from-file (filepath)
   "Return alist of the json resultset at FILEPATH."
   (json-read-from-string (with-temp-buffer
                            (insert-file-contents filepath)
