@@ -7,21 +7,13 @@
         null
       ],
       "/baz/qux/quux.rb": [
-        1,
-        5,
-        0,
-        null,
-        1,
-        5,
-        null,
         null,
         1,
         null,
         null,
         0,
         0,
-        16,
-        null
+        16
       ]
     },
     "timestamp": 1453405229
