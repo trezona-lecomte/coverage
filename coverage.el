@@ -67,6 +67,10 @@ root directory."
                  (string :tag "Path to coverage diretory"))
   :group 'coverage)
 
+(defun coverage-get-resultset-filepath ()
+  "Return the fully-qualified file path of the resulset."
+  (concat (coverage-dir-for-file buffer-file-name) coverage-resultset-filename))
+
 (defun coverage-dir-for-file (filepath)
   "Guess the coverage directory of the given FILEPATH.
 
@@ -92,10 +96,9 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
       (forward-line))))
 
 (defun coverage-get-results-for-current-buffer ()
-  "Return a list of coverage for the current buffer."
-  (coverage-get-results-for-file buffer-file-name
-                                 (concat (coverage-dir-for-file buffer-file-name)
-                                         coverage-resultset-filename)))
+  "Return a list of coverage results for the currently visited
+file."
+  (coverage-get-results-for-file buffer-file-name coverage-get-resultset-filepath))
 
 (defun coverage-get-results-for-file (target-path result-path)
   "Return coverage for the file at TARGET-PATH from resultset at RESULT-PATH."

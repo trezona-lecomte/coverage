@@ -25,6 +25,11 @@
   (should (equal (coverage-get-results-for-file "/baz/qux/quux.rb" "./example.json")
                  (coerce quux-results 'list))))
 
+(ert-deftest test-coverage-get-resultset-filepath ()
+  (should (string= (coverage-get-resultset-filepath)
+                   "~/dev/coverage/coverage/.resultset.json")))
+
+
 (provide 'coverage-test)
 
 ;;; coverage-test.el ends here
