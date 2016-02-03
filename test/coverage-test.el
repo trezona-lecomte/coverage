@@ -29,7 +29,6 @@
   (should (string= (coverage-get-resultset-filepath)
                    "~/dev/coverage/coverage/.resultset.json")))
 
-
 (provide 'coverage-test)
 
 ;;; coverage-test.el ends here
