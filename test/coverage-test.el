@@ -29,6 +29,14 @@
   (should (string= (coverage-get-resultset-filepath)
                    "~/dev/coverage/coverage/.resultset.json")))
 
+(ert-deftest test-coverage-dir-for-file ()
+  (should (string= (coverage-dir-for-file "../coverage.el")
+                   "../coverage/")))
+
+;; TODO: test for the coverage-dir customizable variable
+;; TODO: test for the coverage-draw-highlighting-for-current-buffer function
+;; TODO: test for the coverage-get-results-for-current-buffer function
+
 (provide 'coverage-test)
 
 ;;; coverage-test.el ends here
