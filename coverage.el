@@ -67,17 +67,17 @@ root directory."
                  (string :tag "Path to coverage diretory"))
   :group 'coverage)
 
-(defun coverage-get-resultset-filepath ()
-  "Return the fully-qualified file path of the resulset."
-  (concat (coverage-dir-for-file buffer-file-name) coverage-resultset-filename))
+(defun coverage-result-path-for-file (filename)
+  "Return the fully-qualified filepath of the resultset for FILENAME."
+  (concat (coverage-dir-for-file filename) coverage-resultset-filename))
 
-(defun coverage-dir-for-file (filepath)
+(defun coverage-dir-for-file (filename)
   "Guess the coverage directory of the given FILEPATH.
 
 Use `coverage-dir' if set, or fall back to /coverage under Git
 root."
   (or coverage-dir
-      (concat (vc-git-root filepath) "coverage/")))
+      (concat (vc-git-root filename) "coverage/")))
 
 (defun coverage-clear-highlighting-for-current-buffer ()
   "Clear all coverage highlighting for the current buffer."
