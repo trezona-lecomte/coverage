@@ -10,8 +10,8 @@
 (defvar expected-json `((RSpec
                          (timestamp . 1453405229)
                          (coverage
-                          '(/foo/bar\.rb . ,bar-results)
-                          '(/baz/qux/quux\.rb . ,quux-results)))))
+                          (/baz/qux/quux\.rb . ,quux-results)
+                          (/foo/bar\.rb . ,bar-results)))))
 
 (ert-deftest test-coverage-get-json-from-file ()
   (should (equal (coverage-get-json-from-file "./example.json")
@@ -19,11 +19,11 @@
 
 (ert-deftest test-coverage-get-results-for-file-bar ()
   (should (equal (coverage-get-results-for-file "/foo/bar.rb" "./example.json")
-                 bar-results)))
+                 (coerce bar-results 'list))))
 
 (ert-deftest test-coverage-get-results-for-file-quux ()
   (should (equal (coverage-get-results-for-file "/baz/qux/quux.rb" "./example.json")
-                 quux-results)))
+                 (coerce quux-results 'list))))
 
 (provide 'coverage-test)
 

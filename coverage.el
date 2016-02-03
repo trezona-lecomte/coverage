@@ -103,7 +103,7 @@ Use `coverage-dir' if set, or fall back to /coverage under Git root."
            (assoc-string target-path
                          (assoc 'coverage
                                 (assoc 'RSpec
-                                       (coverage-get-results-from-json result-path)))))
+                                       (coverage-get-json-from-file result-path)))))
           'list))
 
 (defun coverage-get-json-from-file (filepath)
