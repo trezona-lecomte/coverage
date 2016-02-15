@@ -72,7 +72,7 @@ root directory."
   (concat (coverage-dir-for-file filename) coverage-resultset-filename))
 
 (defun coverage-dir-for-file (filename)
-  "Guess the coverage directory of the given FILEPATH.
+  "Guess the coverage directory of the given FILENAME.
 
 Use `coverage-dir' if set, or fall back to /coverage under Git
 root."
@@ -97,8 +97,7 @@ root."
       (forward-line))))
 
 (defun coverage-get-results-for-current-buffer ()
-  "Return a list of coverage results for the currently visited
-file."
+  "Return a list of coverage results for the currently buffer."
   (coverage-get-results-for-file buffer-file-name coverage-get-resultset-filepath))
 
 (defun coverage-get-results-for-file (target-path result-path)

@@ -31,7 +31,7 @@
   (expect "~/dev/coverage/coverage/"
     (coverage-dir-for-file "~/dev/coverage/test/.example.json"))
 
-  ;;TODO:
+  ;; TODO:
   ;; (desc "get coverage dir for a file with customized coverage-dir")
   ;; (expect "~/dev/coverage/coverage/"
   ;;   (coverage-dir-for-file "~/dev/coverage/test/.example.json"))
