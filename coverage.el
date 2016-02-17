@@ -79,15 +79,17 @@ root."
   (or coverage-dir
       (concat (vc-git-root filename) "coverage/")))
 
-(defun coverage-clear-highlighting-for-current-buffer ()
-  "Clear all coverage highlighting for the current buffer."
+(defun coverage-clear-highlighting (buffer)
+  "Clear all coverage highlighting for BUFFER."
+  (set-buffer buffer)
   (ov-clear))
 
-(defun coverage-draw-highlighting-for-current-buffer ()
-  "Draw line highlighting in the current buffer."
+(defun coverage-draw-highlighting (results buffer)
+  "Draw line highlighting for RESULTS in BUFFER."
+  (set-buffer buffer)
   (save-excursion
     (goto-char (point-min))
-    (dolist (element (coverage-get-results-for-current-buffer))
+    (dolist (element results)
       (cond ((eq element nil)
              (ov-clear (line-beginning-position) (line-end-position)))
             ((= element 0)
@@ -98,11 +100,11 @@ root."
 
 (defun coverage-get-results-for-current-buffer ()
   "Return a list of coverage results for the currently buffer."
-  (coverage-get-results-for-file buffer-file-name coverage-get-resultset-filepath))
+  (coverage-get-results-for-file (buffer-file-name)
+                                 (coverage-result-path-for-file buffer-file-name)))
 
 (defun coverage-get-results-for-file (target-path result-path)
-  "Return coverage for the file at TARGET-PATH from resultset at
-RESULT-PATH."
+  "Return coverage for the file at TARGET-PATH from RESULT-PATH."
   (coerce (cdr
            (assoc-string target-path
                          (assoc 'coverage
@@ -141,8 +143,8 @@ RESULT-PATH."
   "Coverage mode"
   :lighter " COV"
   (if coverage
-      (coverage-draw-highlighting-for-current-buffer)
-    (coverage-clear-highlighting-for-current-buffer)))
+      (coverage-draw-highlighting (coverage-get-results-for-current-buffer) (current-buffer))
+    (coverage-clear-highlighting (current-buffer))))
 
 (provide 'coverage)
 
