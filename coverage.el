@@ -40,6 +40,11 @@
 ;; At present it only knows how to parse coverage data in the format
 ;; provided by the Simplecov gem (specifically, the RSpec results in
 ;; the .resultset.json file it outputs).
+;;
+;; Coverage highlighting will be automatically updated whenever the
+;; coverage results change after running specs.  You can individually
+;; toggle Coverage on/off in as many buffers as you like.
+
 
 (require 'json)
 (require 'ov)
@@ -141,16 +146,16 @@ root."
           'list))
 
 (defun coverage-get-results-for-current-buffer ()
-  "Return a list of coverage results for the currently buffer."
+  "Return a list of coverage results for the current buffer."
   (coverage-get-results-for-file (buffer-file-name)
                                  (coverage-result-path-for-file buffer-file-name)))
 
 (defun coverage-set-timer ()
   "Restart or cancel the timer used by Coverage.
-If the timer is active, cancel it.  Start a new timer if
-Coverage is enable in any buffers.  Restarting the timer
-ensures that Coverage will use an up-to-date value of
-`coverage-interval'"
+
+If the timer is active, cancel it.  Start a new timer if Coverage
+is enable in any buffers.  Restarting the timer ensures that
+Coverage will use an up-to-date value of `coverage-interval'"
   (if (timerp coverage-timer)
       (cancel-timer coverage-timer))
   (setq coverage-timer
@@ -161,9 +166,8 @@ ensures that Coverage will use an up-to-date value of
 (defun coverage-redraw-buffers ()
   "Redraw highlighting in all buffers with Coverage enabled.
 
-This function is also responsible for removing buffers that no
-longer have Coverage enabled from `coverage-buffer-list', and for
-canceling the timer when no there are no more enabled buffers."
+If Coverage is no longer enabled in any of the buffers, remove
+that buffer from `coverage-buffer-list'."
   (setq existing-buffers coverage-buffer-list)
   (setq enabled-buffers ())
   (dolist (buffer existing-buffers)
