@@ -3,7 +3,7 @@
 ;; Copyright (C) 2016 Powershop NZ Ltd.
 
 ;; Author: Kieran Trezona-le Comte <trezona.lecomte@gmail.com>
-;; Version: 0.1
+;; Version: 0.2
 ;; Package-Requires: ((ov "1.0"))
 ;; Created: 2016-01-21
 ;; Keywords: coverage metrics simplecov ruby rspec
