@@ -30,13 +30,6 @@
   (desc "get coverage dir for a file from the git root")
   (expect "~/dev/coverage/coverage/"
     (coverage-dir-for-file "~/dev/coverage/test/.example.json"))
-
-  (desc "draw highlighting for the current buffer")
-  (expect )
-
-  ;; TODO:
-  ;; (desc "get coverage dir for a file with customized coverage-dir")
-  ;; (desc "clear highlighting for the current buffer")
   )
 
 (provide 'coverage-test)
