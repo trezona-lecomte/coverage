@@ -67,6 +67,25 @@ root directory."
                  (string :tag "Path to coverage diretory"))
   :group 'coverage)
 
+(defun coverage-clear-highlighting (buffer)
+  "Clear all coverage highlighting for BUFFER."
+  (set-buffer buffer)
+  (ov-clear))
+
+(defun coverage-draw-highlighting-for-current-buffer ()
+  "Draw line highlighting for the current buffer."
+  (save-excursion
+    (goto-char (point-min))
+    (dolist (element (coverage-get-results-for-current-buffer))
+      (ov-clear (line-beginning-position) (line-end-position))
+      (cond ((eq element nil)
+             (ov-clear (line-beginning-position) (line-end-position)))
+            ((= element 0)
+             (ov (line-beginning-position) (line-end-position) 'face 'coverage-uncovered-face))
+            ((> element 0)
+             (ov (line-beginning-position) (line-end-position) 'face 'coverage-covered-face)))
+      (forward-line))))
+
 (defun coverage-result-path-for-file (filename)
   "Return the fully-qualified filepath of the resultset for FILENAME."
   (concat (coverage-dir-for-file filename) coverage-resultset-filename))
@@ -79,29 +98,11 @@ root."
   (or coverage-dir
       (concat (vc-git-root filename) "coverage/")))
 
-(defun coverage-clear-highlighting (buffer)
-  "Clear all coverage highlighting for BUFFER."
-  (set-buffer buffer)
-  (ov-clear))
-
-(defun coverage-draw-highlighting (results buffer)
-  "Draw line highlighting for RESULTS in BUFFER."
-  (set-buffer buffer)
-  (save-excursion
-    (goto-char (point-min))
-    (dolist (element results)
-      (cond ((eq element nil)
-             (ov-clear (line-beginning-position) (line-end-position)))
-            ((= element 0)
-             (ov (line-beginning-position) (line-end-position) 'face 'coverage-uncovered-face))
-            ((> element 0)
-             (ov (line-beginning-position) (line-end-position) 'face 'coverage-covered-face)))
-      (forward-line))))
-
-(defun coverage-get-results-for-current-buffer ()
-  "Return a list of coverage results for the currently buffer."
-  (coverage-get-results-for-file (buffer-file-name)
-                                 (coverage-result-path-for-file buffer-file-name)))
+(defun coverage-get-json-from-file (filepath)
+  "Return alist of the json resultset at FILEPATH."
+  (json-read-from-string (with-temp-buffer
+                           (insert-file-contents filepath)
+                           (buffer-string))))
 
 (defun coverage-get-results-for-file (target-path result-path)
   "Return coverage for the file at TARGET-PATH from RESULT-PATH."
