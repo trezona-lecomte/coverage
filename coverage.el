@@ -43,6 +43,7 @@
 
 (require 'json)
 (require 'ov)
+(require 'timer)
 (autoload 'vc-git-root "vc-git")
 
 ;;; Code:
@@ -52,6 +53,31 @@
   :group 'programming)
 
 (defvar coverage-resultset-filename ".resultset.json")
+
+(defvar coverage-timer nil
+  "Timer used by Coverage.")
+
+(defcustom coverage-interval 1
+  "Time, in seconds, between Coverage result file checks.
+The value may be an integer or floating point number.
+
+If a timer is already active, there are two ways to make sure
+that the new value will take effect immediately.  You can set
+this variable through Custom or you can call the command
+`coverage-set-timer' after setting the variable.  Otherwise,
+the new value will take effect the first time Coverage
+calls `coverage-set-timer' for internal reasons or in your
+next editing session."
+  :group 'coverage
+  :type 'number
+  :set (lambda (variable value)
+         (set-default variable value)
+         (and (boundp 'coverage-timer)
+              coverage-timer
+              (coverage-set-timer))))
+
+(defvar coverage-buffer-list ()
+  "List of buffers with Coverage enabled.")
 
 (defcustom coverage-dir nil
   "The coverage directory for `coverage'.
@@ -67,9 +93,10 @@ root directory."
                  (string :tag "Path to coverage diretory"))
   :group 'coverage)
 
-(defun coverage-clear-highlighting (buffer)
-  "Clear all coverage highlighting for BUFFER."
-  (set-buffer buffer)
+(defun coverage-clear-highlighting-for-current-buffer ()
+  "Clear all coverage highlighting for the current buffer."
+  (when coverage-timer
+    (cancel-timer coverage-timer))
   (ov-clear))
 
 (defun coverage-draw-highlighting-for-current-buffer ()
@@ -113,11 +140,55 @@ root."
                                        (coverage-get-json-from-file result-path)))))
           'list))
 
-(defun coverage-get-json-from-file (filepath)
-  "Return alist of the json resultset at FILEPATH."
-  (json-read-from-string (with-temp-buffer
-                           (insert-file-contents filepath)
-                           (buffer-string))))
+(defun coverage-get-results-for-current-buffer ()
+  "Return a list of coverage results for the currently buffer."
+  (coverage-get-results-for-file (buffer-file-name)
+                                 (coverage-result-path-for-file buffer-file-name)))
+
+(defun coverage-set-timer ()
+  "Restart or cancel the timer used by Coverage.
+If the timer is active, cancel it.  Start a new timer if
+Coverage is enable in any buffers.  Restarting the timer
+ensures that Coverage will use an up-to-date value of
+`coverage-interval'"
+  (if (timerp coverage-timer)
+      (cancel-timer coverage-timer))
+  (setq coverage-timer
+        (run-with-timer coverage-interval
+                        coverage-interval
+                        'coverage-redraw-buffers)))
+
+(defun coverage-redraw-buffers ()
+  "Redraw highlighting in all buffers with Coverage enabled.
+
+This function is also responsible for removing buffers that no
+longer have Coverage enabled from `coverage-buffer-list', and for
+canceling the timer when no there are no more enabled buffers."
+  (setq existing-buffers coverage-buffer-list)
+  (setq enabled-buffers ())
+  (dolist (buffer existing-buffers)
+    (when (buffer-live-p buffer)
+      (with-current-buffer buffer
+        (if coverage
+            (coverage-draw-highlighting-for-current-buffer)
+          (coverage-clear-highlighting-for-current-buffer))
+        (if coverage
+            (push buffer enabled-buffers)))))
+  (setq coverage-buffer-list enabled-buffers))
+
+;;; Mode definition
+
+;;;###autoload
+(define-minor-mode coverage
+  "Toggle Coverage mode for the current buffer."
+  :lighter " COV"
+  (if coverage
+    (if (not (memq (current-buffer) coverage-buffer-list))
+        (push (current-buffer) coverage-buffer-list))
+    (coverage-set-timer))
+  (when (null coverage-buffer-list)
+    (cancel-timer coverage-timer))
+  (coverage-redraw-buffers))
 
 ;;; Faces
 
@@ -136,16 +207,6 @@ root."
      :background "#553333"))
   "Face for uncovered lines of code."
   :group 'coverage)
-
-;;; Mode definition
-
-;;;###autoload
-(define-minor-mode coverage
-  "Coverage mode"
-  :lighter " COV"
-  (if coverage
-      (coverage-draw-highlighting (coverage-get-results-for-current-buffer) (current-buffer))
-    (coverage-clear-highlighting (current-buffer))))
 
 (provide 'coverage)
 
