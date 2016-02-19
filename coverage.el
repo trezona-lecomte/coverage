@@ -4,7 +4,7 @@
 
 ;; Author: Kieran Trezona-le Comte <trezona.lecomte@gmail.com>
 ;; Version: 0.2
-;; Package-Requires: ((ov "1.0"))
+;; Package-Requires: ((ov "1.0") (cl-lib "0.5"))
 ;; Created: 2016-01-21
 ;; Keywords: coverage metrics simplecov ruby rspec
 ;; URL: https://github.com/trezona-lecomte/coverage
@@ -48,7 +48,7 @@
 
 (require 'json)
 (require 'ov)
-(require 'cl)
+(require 'cl-lib)
 (require 'timer)
 (autoload 'vc-git-root "vc-git")
 
@@ -139,12 +139,12 @@ root."
 
 (defun coverage-get-results-for-file (target-path result-path)
   "Return coverage for the file at TARGET-PATH from RESULT-PATH."
-  (coerce (cdr
-           (assoc-string target-path
-                         (assoc 'coverage
-                                (assoc 'RSpec
-                                       (coverage-get-json-from-file result-path)))))
-          'list))
+  (cl-coerce (cdr
+              (assoc-string target-path
+                            (assoc 'coverage
+                                   (assoc 'RSpec
+                                          (coverage-get-json-from-file result-path)))))
+             'list))
 
 (defun coverage-get-results-for-current-buffer ()
   "Return a list of coverage results for the current buffer."
@@ -164,36 +164,35 @@ Coverage will use an up-to-date value of `coverage-interval'"
                         coverage-interval
                         'coverage-redraw-buffers)))
 
+;;; Mode definition
+
+;;;###autoload
+(define-minor-mode coverage-mode
+  "Toggle Coverage mode for the current buffer."
+  :lighter " COV"
+  (when coverage-mode
+    (add-to-list 'coverage-buffer-list (current-buffer))
+    (coverage-set-timer))
+  (when (null coverage-buffer-list)
+    (cancel-timer coverage-timer))
+  (coverage-redraw-buffers))
+
 (defun coverage-redraw-buffers ()
   "Redraw highlighting in all buffers with Coverage enabled.
 
 If Coverage is no longer enabled in any of the buffers, remove
 that buffer from `coverage-buffer-list'."
-  (setq existing-buffers coverage-buffer-list)
-  (setq enabled-buffers ())
-  (dolist (buffer existing-buffers)
-    (when (buffer-live-p buffer)
-      (with-current-buffer buffer
-        (if coverage
-            (coverage-draw-highlighting-for-current-buffer)
-          (coverage-clear-highlighting-for-current-buffer))
-        (if coverage
-            (push buffer enabled-buffers)))))
-  (setq coverage-buffer-list enabled-buffers))
-
-;;; Mode definition
-
-;;;###autoload
-(define-minor-mode coverage
-  "Toggle Coverage mode for the current buffer."
-  :lighter " COV"
-  (if coverage
-    (if (not (memq (current-buffer) coverage-buffer-list))
-        (push (current-buffer) coverage-buffer-list))
-    (coverage-set-timer))
-  (when (null coverage-buffer-list)
-    (cancel-timer coverage-timer))
-  (coverage-redraw-buffers))
+  (let ((existing-buffers coverage-buffer-list)
+        enabled-buffers)
+    (dolist (buffer existing-buffers)
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (if coverage-mode
+              (progn
+                (coverage-draw-highlighting-for-current-buffer)
+                (push buffer enabled-buffers))
+            (coverage-clear-highlighting-for-current-buffer)))))
+    (setq coverage-buffer-list enabled-buffers)))
 
 ;;; Faces
 
