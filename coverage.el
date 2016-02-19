@@ -48,6 +48,7 @@
 
 (require 'json)
 (require 'ov)
+(require 'cl)
 (require 'timer)
 (autoload 'vc-git-root "vc-git")
 
