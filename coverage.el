@@ -45,14 +45,13 @@
 ;; coverage results change after running specs.  You can individually
 ;; toggle Coverage on/off in as many buffers as you like.
 
+;;; Code:
 
 (require 'json)
 (require 'ov)
 (require 'cl-lib)
 (require 'timer)
 (autoload 'vc-git-root "vc-git")
-
-;;; Code:
 
 (defgroup coverage nil
   "Code coverage line highlighting."
@@ -82,8 +81,8 @@ next editing session."
               coverage-timer
               (coverage-set-timer))))
 
-(defvar coverage-buffer-list ()
-  "List of buffers with Coverage enabled.")
+(defvar coverage-buffer-list
+  "List of buffers with `coverage-mode' enabled.")
 
 (defcustom coverage-dir nil
   "The coverage directory for `coverage'.
