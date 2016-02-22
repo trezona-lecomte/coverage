@@ -5,6 +5,8 @@ Code coverage highlighting for Emacs
 of lines within buffers to indicate their code coverage status, as
 determined by your test suite.
 
+![Screenshot](coverage-example-screenshot.png)
+
 Installation
 =============
 
@@ -47,3 +49,6 @@ red for uncovered.
 
 You may also wish to customize `coverage-interval` if you want more
 (or less) responsive coverage highlight updates.
+
+[![MELPA](https://melpa.org/packages/coverage-badge.svg)](https://melpa.org/#/coverage)
+[![MELPA Stable](http://stable.melpa.org/packages/coverage-badge.svg)](http://stable.melpa.org/#/coverage)
