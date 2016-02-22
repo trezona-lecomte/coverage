@@ -81,7 +81,7 @@ next editing session."
               coverage-timer
               (coverage-set-timer))))
 
-(defvar coverage-buffer-list
+(defvar coverage-buffer-list ()
   "List of buffers with `coverage-mode' enabled.")
 
 (defcustom coverage-dir nil
@@ -150,6 +150,20 @@ root."
   (coverage-get-results-for-file (buffer-file-name)
                                  (coverage-result-path-for-file buffer-file-name)))
 
+(defun coverage-get-timestamp-for-results (filepath)
+  "Return the time that results at FILEPATH were last updated."
+  (with-temp-buffer
+    (insert-file-contents filepath)
+    (goto-char (point-max))
+    (re-search-backward "\"timestamp\": [0-9]+")
+    (re-search-forward ": ")
+    (current-word)))
+
+(defun coverage-get-timestamp-for-current-buffer ()
+  "Return result timestamp for the current buffer."
+  (coverage-get-timestamp-for-results
+   (coverage-result-path-for-file buffer-file-name)))
+
 (defun coverage-set-timer ()
   "Restart or cancel the timer used by Coverage.
 
@@ -170,8 +184,10 @@ Coverage will use an up-to-date value of `coverage-interval'"
   "Toggle Coverage mode for the current buffer."
   :lighter " COV"
   (when coverage-mode
-    (add-to-list 'coverage-buffer-list (current-buffer))
-    (coverage-set-timer))
+    (let ((timestamp-and-buffer (cons (coverage-get-timestamp-for-current-buffer)
+                                      (current-buffer))))
+      (add-to-list 'coverage-buffer-list timestamp-and-buffer)
+      (coverage-set-timer)))
   (when (null coverage-buffer-list)
     (cancel-timer coverage-timer))
   (coverage-redraw-buffers))
@@ -179,19 +195,31 @@ Coverage will use an up-to-date value of `coverage-interval'"
 (defun coverage-redraw-buffers ()
   "Redraw highlighting in all buffers with Coverage enabled.
 
+Use the `coverage-redraw-current-buffer' function for each
+enabled buffer to make sure we don't redraw buffers unless the
+timestamp in their results has changed.
+
 If Coverage is no longer enabled in any of the buffers, remove
 that buffer from `coverage-buffer-list'."
   (let ((existing-buffers coverage-buffer-list)
         enabled-buffers)
-    (dolist (buffer existing-buffers)
-      (when (buffer-live-p buffer)
-        (with-current-buffer buffer
-          (if coverage-mode
-              (progn
-                (coverage-draw-highlighting-for-current-buffer)
-                (push buffer enabled-buffers))
-            (coverage-clear-highlighting-for-current-buffer)))))
+    (dolist (timestamp-and-buffer existing-buffers)
+      (let ((buffer (cdr timestamp-and-buffer))
+            (existing-timestamp (car timestamp-and-buffer)))
+        (when (buffer-live-p buffer)
+          (with-current-buffer buffer
+            (if coverage-mode
+                (let ((new-timestamp (coverage-get-timestamp-for-current-buffer)))
+                  (progn
+                    (coverage-redraw-current-buffer new-timestamp existing-timestamp)
+                    (push (cons new-timestamp buffer) enabled-buffers)))
+              (coverage-clear-highlighting-for-current-buffer))))))
     (setq coverage-buffer-list enabled-buffers)))
+
+(defun coverage-redraw-current-buffer (new-timestamp existing-timestamp)
+  "Redraw current buffer unless NEW-TIMESTAMP equals EXISTING-TIMESTAMP."
+  (unless (eq new-timestamp existing-timestamp)
+    (coverage-draw-highlighting-for-current-buffer)))
 
 ;;; Faces
 
