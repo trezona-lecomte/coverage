@@ -31,9 +31,7 @@ as the test coverage for that file changes. You may enable and disable
 `coverage-mode` independently for multiple files in the same project.
 
 Currently `coverage-mode` only works with output as supplied by the
-[SimpleCov](https://github.com/colszowka/simplecov) gem, and it is
-only configured to work with [RSpec](https://github.com/rspec/rspec)
-results.
+[SimpleCov](https://github.com/colszowka/simplecov) gem.
 
 Configuration
 ====

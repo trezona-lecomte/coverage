@@ -13,11 +13,14 @@
 (setq bar-results '(1 0 nil))
 
 (defvar example-json)
-(setq example-json `((RSpec
-                        (coverage
-                         (/foo/bar\.rb . ,(coerce bar-results 'array))
-                         (/baz/qux/quux\.rb . ,(coerce quux-results 'array)))
-                        (timestamp . 1453405229))))
+(setq example-json `((provider-1
+		      (coverage
+		       (/foo/bar\.rb . ,(coerce bar-results 'array)))
+		      (timestamp . 1234567890))
+		     (provider-2
+		      (coverage
+		       (/baz/qux/quux\.rb . ,(coerce quux-results 'array)))
+		      (timestamp . 6789012345))))
 
 (expectations
   (desc "get json from a resultset file")

@@ -38,8 +38,7 @@
 ;; source code files.
 ;;
 ;; At present it only knows how to parse coverage data in the format
-;; provided by the Simplecov gem (specifically, the RSpec results in
-;; the .resultset.json file it outputs).
+;; provided by the Simplecov gem.
 ;;
 ;; Coverage highlighting will be automatically updated whenever the
 ;; coverage results change after running specs.  You can individually
@@ -139,10 +138,12 @@ root."
 (defun coverage-get-results-for-file (target-path result-path)
   "Return coverage for the file at TARGET-PATH from RESULT-PATH."
   (cl-coerce (cdr
-              (assoc-string target-path
-                            (assoc 'coverage
-                                   (assoc 'RSpec
-                                          (coverage-get-json-from-file result-path)))))
+              (car
+               (cl-remove-if-not 'identity
+                                 (mapcar (lambda (l)
+                                           (assoc-string target-path
+                                                         (assoc 'coverage l)))
+                                         (coverage-get-json-from-file result-path)))))
              'list))
 
 (defun coverage-get-results-for-current-buffer ()
