@@ -5,10 +5,14 @@
 (require 'ert-expectations)
 (require 'coverage)
 
-(defvar quux-results  '(nil 1 nil nil 0 0 16))
-(defvar bar-results '(1 0 nil))
+(defvar quux-results)
+(setq quux-results '(nil 1 nil nil 0 0 16))
 
-(defvar example-json `((RSpec
+(defvar bar-results)
+(setq bar-results '(1 0 nil))
+
+(defvar example-json)
+(setq example-json `((RSpec
                         (timestamp . 1453405229)
                         (coverage
                          (/baz/qux/quux\.rb . ,(coerce quux-results 'array))
