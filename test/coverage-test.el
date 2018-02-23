@@ -4,6 +4,7 @@
 (require 'ert)
 (require 'ert-expectations)
 (require 'coverage)
+(require 'el-mock)
 
 (defvar quux-results)
 (setq quux-results '(nil 1 nil nil 0 0 16))
@@ -29,11 +30,15 @@
 
   (desc "get the default result path for a file")
   (expect "~/dev/coverage/coverage/.resultset.json"
-    (coverage-result-path-for-file "~/dev/coverage/test/.example.json"))
+    (with-mock
+     (stub vc-git-root => "~/dev/coverage/")
+     (coverage-result-path-for-file "~/dev/coverage/test/.example.json")))
 
   (desc "get coverage dir for a file from the git root")
   (expect "~/dev/coverage/coverage/"
-    (coverage-dir-for-file "~/dev/coverage/test/.example.json"))
+    (with-mock
+     (stub vc-git-root => "~/dev/coverage/")
+     (coverage-dir-for-file "~/dev/coverage/test/.example.json")))
   )
 
 (provide 'coverage-test)
