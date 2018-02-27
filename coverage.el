@@ -101,20 +101,20 @@ root directory."
   "Clear all coverage highlighting for the current buffer."
   (when coverage-timer
     (cancel-timer coverage-timer))
-  (ov-clear))
+  (ov-clear 'coverage 'any))
 
 (defun coverage-draw-highlighting-for-current-buffer ()
   "Draw line highlighting for the current buffer."
   (save-excursion
     (goto-char (point-min))
     (dolist (element (coverage-get-results-for-current-buffer))
-      (ov-clear (line-beginning-position) (line-end-position))
-      (cond ((eq element nil)
-             (ov-clear (line-beginning-position) (line-end-position)))
+      (ov-clear 'coverage 'any (line-beginning-position) (line-end-position))
+      (cond ((null element)
+             t)
             ((= element 0)
-             (ov (line-beginning-position) (line-end-position) 'face 'coverage-uncovered-face))
+             (ov (line-beginning-position) (line-end-position) 'coverage t 'face 'coverage-uncovered-face))
             ((> element 0)
-             (ov (line-beginning-position) (line-end-position) 'face 'coverage-covered-face)))
+             (ov (line-beginning-position) (line-end-position) 'coverage t 'face 'coverage-covered-face)))
       (forward-line))))
 
 (defun coverage-result-path-for-file (filename)
