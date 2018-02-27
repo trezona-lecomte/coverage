@@ -4,15 +4,23 @@
 (require 'ert)
 (require 'ert-expectations)
 (require 'coverage)
+(require 'el-mock)
 
-(defvar quux-results  '(nil 1 nil nil 0 0 16))
-(defvar bar-results '(1 0 nil))
+(defvar quux-results)
+(setq quux-results '(nil 1 nil nil 0 0 16))
 
-(defvar example-json `((RSpec
-                        (timestamp . 1453405229)
-                        (coverage
-                         (/baz/qux/quux\.rb . ,(coerce quux-results 'array))
-                         (/foo/bar\.rb . ,(coerce bar-results 'array))))))
+(defvar bar-results)
+(setq bar-results '(1 0 nil))
+
+(defvar example-json)
+(setq example-json `((provider-1
+		      (coverage
+		       (/foo/bar\.rb . ,(coerce bar-results 'array)))
+		      (timestamp . 1234567890))
+		     (provider-2
+		      (coverage
+		       (/baz/qux/quux\.rb . ,(coerce quux-results 'array)))
+		      (timestamp . 6789012345))))
 
 (expectations
   (desc "get json from a resultset file")
@@ -25,11 +33,15 @@
 
   (desc "get the default result path for a file")
   (expect "~/dev/coverage/coverage/.resultset.json"
-    (coverage-result-path-for-file "~/dev/coverage/test/.example.json"))
+    (with-mock
+     (stub vc-git-root => "~/dev/coverage/")
+     (coverage-result-path-for-file "~/dev/coverage/test/.example.json")))
 
   (desc "get coverage dir for a file from the git root")
   (expect "~/dev/coverage/coverage/"
-    (coverage-dir-for-file "~/dev/coverage/test/.example.json"))
+    (with-mock
+     (stub vc-git-root => "~/dev/coverage/")
+     (coverage-dir-for-file "~/dev/coverage/test/.example.json")))
   )
 
 (provide 'coverage-test)

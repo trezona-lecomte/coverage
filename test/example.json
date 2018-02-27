@@ -1,11 +1,16 @@
 {
-  "RSpec": {
+  "provider-1": {
     "coverage": {
       "/foo/bar.rb": [
         1,
         0,
         null
-      ],
+      ]
+    },
+    "timestamp": 1234567890
+  },
+  "provider-2": {
+		"coverage": {
       "/baz/qux/quux.rb": [
         null,
         1,
@@ -16,6 +21,6 @@
         16
       ]
     },
-    "timestamp": 1453405229
+    "timestamp": 6789012345
   }
 }
