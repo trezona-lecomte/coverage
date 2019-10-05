@@ -97,6 +97,15 @@ root directory."
                  (string :tag "Path to coverage diretory"))
   :group 'coverage)
 
+(defcustom coverage-highlight-eol nil
+  "When t, highlight the rest of the line (past its end) too."
+  :type 'boolean
+  :group 'coverage)
+
+(defun coverage--line-end-position ()
+  "Return point for the end of the overlay according to `coverage-highlight-eol'."
+  (+ (line-end-position) (if coverage-highlight-eol 1 0)))
+
 (defun coverage-clear-highlighting-for-current-buffer ()
   "Clear all coverage highlighting for the current buffer."
   (when coverage-timer
@@ -108,13 +117,13 @@ root directory."
   (save-excursion
     (goto-char (point-min))
     (dolist (element (coverage-get-results-for-current-buffer))
-      (ov-clear 'coverage 'any (line-beginning-position) (line-end-position))
+      (ov-clear 'coverage 'any (line-beginning-position) (coverage--line-end-position))
       (cond ((null element)
              t)
             ((= element 0)
-             (ov (line-beginning-position) (line-end-position) 'coverage t 'face 'coverage-uncovered-face))
+             (ov (line-beginning-position) (coverage--line-end-position) 'coverage t 'face 'coverage-uncovered-face))
             ((> element 0)
-             (ov (line-beginning-position) (line-end-position) 'coverage t 'face 'coverage-covered-face)))
+             (ov (line-beginning-position) (coverage--line-end-position) 'coverage t 'face 'coverage-covered-face)))
       (forward-line))))
 
 (defun coverage-result-path-for-file (filename)
