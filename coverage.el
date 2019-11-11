@@ -165,8 +165,8 @@ root."
   (with-temp-buffer
     (insert-file-contents filepath)
     (goto-char (point-max))
-    (re-search-backward "\"timestamp\": [0-9]+")
-    (re-search-forward ": ")
+    (re-search-backward "\"timestamp\": *[0-9]+")
+    (re-search-forward ": *")
     (current-word)))
 
 (defun coverage-get-timestamp-for-current-buffer ()
